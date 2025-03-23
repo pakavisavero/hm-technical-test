@@ -16,7 +16,6 @@ urlpatterns = [
     path('accounts/profile/', lambda request: redirect('dashboard'), name='profile_redirect'),  
     path("module/", include("engine.urls")),
     path('product/', include('product.urls')),
-    path('inventory/', include('inventory.urls')),
 ]
 
 def custom_403(request, exception):

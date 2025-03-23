@@ -192,6 +192,34 @@ def index(request):
             return redirect("module_list")
 
         messages.success(request, f"Module '{module_name}' created successfully.")
+
+        # Update INSTALLED_APPS in settings.py
+        settings_path = os.path.join(project_path, "hashmicro_test", "settings.py")
+        try:
+            with open(settings_path, "r") as f:
+                settings_content = f.read()
+
+            installed_apps_marker = "INSTALLED_APPS = ["
+            installed_apps_start = settings_content.find(installed_apps_marker)
+
+            if installed_apps_start != -1:
+                installed_apps_end = settings_content.find("]", installed_apps_start)
+                if installed_apps_end != -1:
+                    new_installed_apps = settings_content[installed_apps_start:installed_apps_end] + f", '{module_name}'" + settings_content[installed_apps_end:]
+                    settings_content = settings_content[:installed_apps_start] + new_installed_apps
+
+                    with open(settings_path, "w") as f:
+                        f.write(settings_content)
+                else:
+                    messages.error(request, "Failed to find end of INSTALLED_APPS in settings.py.")
+                    return redirect("module_list")
+            else:
+                messages.error(request, "Failed to find INSTALLED_APPS in settings.py.")
+                return redirect("module_list")
+        except Exception as e:
+            messages.error(request, f"Failed to update INSTALLED_APPS: {str(e)}")
+            return redirect("module_list")
+
         return redirect("module_list")
 
     messages.error(request, "Invalid request method.")
