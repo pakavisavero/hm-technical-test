@@ -77,8 +77,7 @@ def module_list(request):
 def create_module(request):
     """
     * Handles module creation.
-    * 
-    * 1. Validates input and checks for duplicate names.
+    * * 1. Validates input and checks for duplicate names.
     * 2. Creates a new module record in the database.
     * 3. Generates the necessary Django app files and directories.
     * 4. Updates project URLs to include the new module.
@@ -87,19 +86,25 @@ def create_module(request):
     * @return: Redirects to module list page with success/error messages.
     """
     if request.method == "POST":
-        module_name = request.POST.get("module_name", "").strip()
-        
+        module_name = request.POST.get("module_name", "").lower().strip()
+
+        if re.search(r'[^a-zA-Z0-9_]', module_name):
+             messages.error(request, "Module name must contain only alphanumeric characters and underscores.")
+             return redirect("module_list")
+
+        module_name = re.sub(r'[^a-zA-Z0-9_]', '', module_name).lower()
+
         if not module_name:
             messages.error(request, "Module name is required.")
             return redirect("module_list")
-        
+
         if Module.objects.filter(name=module_name).exists():
             messages.error(request, f"Module '{module_name}' already exists.")
             return redirect("module_list")
-        
+
         # Create module record with installed=False
         module = Module.objects.create(name=module_name, installed=False)
-        
+
         project_path = settings.BASE_DIR
         app_path = os.path.join(project_path, module_name)
 
@@ -113,15 +118,16 @@ def create_module(request):
             messages.error(request, f"Failed to create Django app '{module_name}'.")
             return redirect("module_list")
 
-        os.makedirs(os.path.join(app_path, "templates", module_name), exist_ok=True)
-        
+        engine_templates_path = os.path.join(project_path, "engine", "templates", module_name)
+        os.makedirs(engine_templates_path, exist_ok=True)
+
         with open(os.path.join(app_path, "urls.py"), "w") as f:
             f.write(f"""
 from django.urls import path
 from .views import index
 
 urlpatterns = [
-    path('', index, name='{module_name}_index'),
+    path('', index, name='{module_name}_list'),
 ]
             """.strip())
 
@@ -133,17 +139,54 @@ def index(request):
     return render(request, '{module_name}/index.html', {{'module_name': '{module_name}'}})
             """.strip())
 
-        with open(os.path.join(app_path, "templates", module_name, "index.html"), "w") as f:
-            f.write(f"<h1>Welcome to {module_name} Module</h1>")
+        with open(os.path.join(engine_templates_path, "index.html"), "w") as f:
+            f.write(f"""
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{{ module_name }}} Module</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {{
+        background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+      }}
+      .module-card {{
+        background: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }}
+      .home-button {{
+        background: linear-gradient(to right, #6366f1, #8b5cf6);
+      }}
+    </style>
+  </head>
+  <body class="flex items-center justify-center h-screen">
+    <div class="module-card text-center p-8 rounded-2xl w-96">
+      <h1 class="text-3xl font-bold text-gray-800 mb-4 tracking-tight">{{{ module_name }}} Module</h1>
+      <p class="text-gray-600 mb-6">The module is ready, but requires further configuration.</p>
+      <a href="/dashboard" class="home-button mt-6 inline-block px-6 py-3 text-white text-lg rounded-xl hover:bg-indigo-600 transition-colors font-semibold">
+        Go Home
+      </a>
+    </div>
+  </body>
+</html>
+            """.strip())
 
         project_urls_path = os.path.join(project_path, "hashmicro_test", "urls.py")
         try:
             with open(project_urls_path, "r+") as f:
                 urls_content = f.read()
-                new_include = f"path('{module_name}/', include('{module_name}.urls')),\n"
+                new_include = f"    path('{module_name}/', include('{module_name}.urls')),\n"
                 if new_include not in urls_content:
-                    f.seek(0, 2) 
-                    f.write(f"\n{new_include}")
+                    end_of_urlpatterns = urls_content.find("]")
+                    if end_of_urlpatterns != -1:
+                        urls_content = urls_content[:end_of_urlpatterns] + new_include + urls_content[end_of_urlpatterns:]
+                        f.seek(0)
+                        f.write(urls_content)
+                    else:
+                        messages.error(request, "Failed to find urlpatterns in project URLs.")
+                        return redirect("module_list")
         except Exception as e:
             messages.error(request, f"Failed to update project URLs: {str(e)}")
             return redirect("module_list")

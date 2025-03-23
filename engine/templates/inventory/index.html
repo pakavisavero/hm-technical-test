@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{ module_name } Module</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+      }
+      .module-card {
+        background: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .home-button {
+        background: linear-gradient(to right, #6366f1, #8b5cf6);
+      }
+    </style>
+  </head>
+  <body class="flex items-center justify-center h-screen">
+    <div class="module-card text-center p-8 rounded-2xl w-96">
+      <h1 class="text-3xl font-bold text-gray-800 mb-4 tracking-tight">{ module_name } Module</h1>
+      <p class="text-gray-600 mb-6">The module is ready, but requires further configuration.</p>
+      <a href="/dashboard" class="home-button mt-6 inline-block px-6 py-3 text-white text-lg rounded-xl hover:bg-indigo-600 transition-colors font-semibold">
+        Go Home
+      </a>
+    </div>
+  </body>
+</html>
