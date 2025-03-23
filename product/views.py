@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from .models import Product
 from .forms import ProductForm
-from .decorators import role_required
+from engine.decorators import role_required
 
 @method_decorator([login_required, role_required(["manager", "user", "public"])], name="dispatch")
 class ProductListView(ListView):

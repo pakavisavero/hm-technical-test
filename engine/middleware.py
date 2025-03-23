@@ -6,15 +6,20 @@ class ModuleCheckMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.path.startswith("/admin/") or request.path.startswith("/module/"):
+        path_parts = request.path.strip("/").split("/")
+        if not path_parts:
             return self.get_response(request)
 
-        path_parts = request.path.strip("/").split("/")
+        if path_parts[0] in ["accounts", "admin", "dashboard", "static", "media"]:
+            return self.get_response(request)
 
-        if path_parts:  
-            module_name = path_parts[0]
-            module = Module.objects.filter(name=module_name, installed=True).first()
-            if not module:
+        module_name = path_parts[0]
+
+        try:
+            module = Module.objects.get(name=module_name)
+            if not module.installed:
                 return render(request, "errors/404.html", status=404)
+        except Module.DoesNotExist:
+            pass
 
         return self.get_response(request)

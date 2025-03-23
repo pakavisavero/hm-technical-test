@@ -23,49 +23,57 @@
       </tr>
     </thead>
     <tbody>
-      {% for module in modules %}
-      <tr class="border-t hover:bg-gray-50">
-        <td class="py-2 px-4 text-center">{{ module.name }}</td>
-        <td class="py-2 px-4 text-center">{{ module.version }}</td>
-        <td class="py-2 px-4 text-center">
-          <span
-            class="px-2 py-1 text-sm rounded {% if module.installed %}bg-green-200 text-green-800{% else %}bg-red-200 text-red-800{% endif %}"
-          >
-            {% if module.installed %} Installed {% else %} Not Installed
+      {% if modules %}
+        {% for module in modules %}
+        <tr class="border-t hover:bg-gray-50">
+          <td class="py-2 px-4 text-center">{{ module.name }}</td>
+          <td class="py-2 px-4 text-center">{{ module.version }}</td>
+          <td class="py-2 px-4 text-center">
+            <span
+              class="px-2 py-1 text-sm rounded {% if module.installed %}bg-green-200 text-green-800{% else %}bg-red-200 text-red-800{% endif %}"
+            >
+              {% if module.installed %} Installed {% else %} Not Installed
+              {% endif %}
+            </span>
+          </td>
+          <td class="py-2 px-4 text-center">
+            {% if not module.installed %}
+            <a
+                href="javascript:void(0);"
+                onclick="showInstallModal('{{ module.name }}')"
+                class="text-blue-600 flex items-center justify-center gap-2 hover:underline"
+            >
+                <i class="ri-download-2-line text-xl"></i> Install
+            </a>
+            {% else %}
+            <div class="flex justify-center gap-4">
+                <a
+                    href="javascript:void(0);"
+                    onclick="showUpgradeModal('{{ module.name }}', '{{ module.version }}')"
+                    class="text-green-600 flex items-center gap-2 hover:text-green-800"
+                >
+                    <i class="ri-arrow-up-circle-line text-xl"></i> Upgrade
+                </a>
+        
+                <a
+                    href="javascript:void(0);"
+                    onclick="showUninstallModal('{{ module.name }}')"
+                    class="text-red-600 flex items-center gap-2 hover:text-red-800"
+                >
+                    <i class="ri-delete-bin-line text-xl"></i> Uninstall
+                </a>
+            </div>
             {% endif %}
-          </span>
         </td>
-        <td class="py-2 px-4 text-center">
-          {% if not module.installed %}
-          <a
-            href="javascript:void(0);"
-            onclick="showInstallModal('{{ module.name }}')"
-            class="text-blue-600 flex items-center justify-center gap-2 hover:underline"
-          >
-            <i class="ph ph-download-simple text-xl"></i> Install
-          </a>
-          {% else %}
-          <div class="flex justify-center gap-4">
-            <a
-              href="javascript:void(0);"
-              onclick="showUpgradeModal('{{ module.name }}', '{{ module.version }}')"
-              class="text-green-600 flex items-center gap-2 hover:text-green-800"
-            >
-              <i class="ph ph-arrow-circle-up text-xl"></i> Upgrade
-            </a>
-
-            <a
-              href="javascript:void(0);"
-              onclick="showUninstallModal('{{ module.name }}')"
-              class="text-red-600 flex items-center gap-2 hover:text-red-800"
-            >
-              <i class="ph ph-trash text-xl"></i> Uninstall
-            </a>
-          </div>
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td colspan="5" class="py-4 text-center text-gray-500">
+            No modules available...
+          </td>
+        </tr>
+      {% endif %}
     </tbody>
   </table>
   </div>

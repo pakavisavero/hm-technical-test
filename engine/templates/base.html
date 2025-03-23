@@ -4,32 +4,120 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Module Management{% endblock %}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .sidebar-gradient { background: linear-gradient(135deg, #1f2937, #374151); } /* Black metal gradient */
+        .sidebar-link { display: flex; align-items: center; padding: 0.5rem 0.75rem; border-radius: 0.375rem; text-decoration: none; color: #e2e8f0; transition: background-color 0.3s ease; margin-bottom: 0.25rem; }
+        .sidebar-link:hover { background-color: rgba(255, 255, 255, 0.1); }
+        .sidebar-icon { margin-right: 0.5rem; color: #cbd5e0; }
+        .sidebar-app-list { margin-top: 0.75rem; padding-left: 0.75rem; }
+        .sidebar-app-list li { margin-bottom: 0.25rem; }
+        .main-gradient { background: linear-gradient(to right, #f9fafb, #e5e7eb); }
+        .logout-btn { background: linear-gradient(to right, #fecaca, #fca5a5); color: #991b1b; }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-900">
-    <div class="max-w-4xl mx-auto p-6">
-        {% block header %}{% endblock %}
+<body class="bg-gray-100 text-gray-900 flex">
 
-        <!-- Success & Error Messages -->
-        {% if messages %}
+    <aside class="w-64 sidebar-gradient text-gray-200 h-screen p-4 fixed">
         <div class="mb-4">
-            {% for message in messages %}
-            <div class="p-4 mb-2 text-white rounded-lg shadow-md 
-                        {% if message.tags == 'success' %}bg-green-500
-                        {% elif message.tags == 'error' %}bg-red-500
-                        {% elif message.tags == 'warning' %}bg-yellow-500{% endif %}">
-                {{ message }}
-            </div>
-            {% endfor %}
+            <h2 class="text-xl font-semibold">Navigation</h2>
         </div>
-        {% endif %}
+        <nav>
+            <ul class="space-y-1">
+                <li>
+                    <a href="{% url 'dashboard' %}" class="sidebar-link">
+                        <i class="ri-home-line sidebar-icon"></i>
+                        <span class="text-sm font-medium">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'module_list' %}" class="sidebar-link">
+                        <i class="ri-archive-line sidebar-icon"></i>
+                        <span class="text-sm font-medium">Modules</span>
+                    </a>
+                </li>
+                <li class="mt-3">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-400">Apps</h3>
+                    <ul class="sidebar-app-list">
+                        {% for app in module_apps %}
+                        <li>
+                            {% load custom_filters %}
+                            <a href="{% url app.name|add:"_list" %}" class="sidebar-link">
+                                <i class="ri-apps-line sidebar-icon"></i> <span class="text-sm font-medium">{{ app.name|camel_case_to_words_first_letter_uppercase }}</span>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </aside>
 
-        {% block content %}{% endblock %}
+    <main class="ml-64 w-full main-gradient">
+        <header class="bg-white shadow-md p-4 flex justify-between items-center">
+            <h1 class="text-xl font-semibold text-gray-800">{% block header %}{% endblock %}</h1>
+        
+            <div class="flex items-center space-x-4">
+                <div class="rounded-full bg-gray-200 w-10 h-10 flex items-center justify-center cursor-pointer" id="user-profile-icon">
+                    <i class="ri-user-line text-gray-700"></i>
+                </div>
+                <span class="text-sm text-gray-700 ml-2 cursor-pointer" id="user-profile-text">{{ request.user.username|camel_case_to_words_first_letter_uppercase }}</span>
+                <a href="javascript:void(0);" class="logout-btn text-sm font-medium px-4 py-2 rounded-lg transition-colors flex items-center" id="logout-button">
+                    <i class="ri-logout-box-line mr-2"></i> Logout
+                </a>
+            </div>
+        </header>
+
+        <div class="p-6">
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="p-4 mb-2 text-white rounded-lg shadow-md 
+                            {% if message.tags == 'success' %}bg-green-500
+                            {% elif message.tags == 'error' %}bg-red-500
+                            {% elif message.tags == 'warning' %}bg-yellow-500{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <div id="logout-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-md w-96">
+            <h2 class="text-lg font-semibold mb-4">Confirm Logout</h2>
+            <p class="mb-4">Are you sure you want to log out?</p>
+            <div class="flex justify-end space-x-4">
+                <button id="cancel-logout" class="px-4 py-2 rounded-lg border border-gray-300">Cancel</button>
+                <a href="{% url 'logout' %}" class="px-4 py-2 rounded-lg bg-red-600 text-white">Logout</a>
+            </div>
+        </div>
     </div>
-
-    {% block scripts %}
     
+    <script>
+        document.getElementById('user-profile-icon').addEventListener('click', function() {
+            document.getElementById('logout-modal').classList.remove('hidden');
+        });
+        document.getElementById('user-profile-text').addEventListener('click', function() {
+            document.getElementById('logout-modal').classList.remove('hidden');
+        });
+        document.getElementById('logout-button').addEventListener('click', function() {
+            document.getElementById('logout-modal').classList.remove('hidden');
+        });
+        document.getElementById('cancel-logout').addEventListener('click', function() {
+            document.getElementById('logout-modal').classList.add('hidden');
+        });
+    </script>
+    
+    {% block scripts %}
     {% endblock %}
 </body>
 </html>

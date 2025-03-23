@@ -2,24 +2,78 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.conf import settings
 from django.http import HttpResponse
-from django.urls import clear_url_caches
+from django.urls import clear_url_caches, reverse
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
+
 from engine.permissions import assign_module_permissions
+from engine.decorators import role_required
 
 from .models import Module
 import subprocess
 import os
 import re
 
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+
+
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect(reverse("dashboard"))
+
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            messages.success(request, "Login successful!")
+
+            return redirect(reverse("dashboard"))
+
+        else:
+            messages.error(request, "Invalid username or password.")
+
+    return render(request, "auth/login.html")
+
+
+def logout_view(request):
+    """
+    Logs out the user and redirects to the login page.
+    """
+    logout(request)
+    messages.success(request, "You have been logged out successfully.")
+    return redirect("login")  # Ensure 'login' is the name of your login URL
+
+
+@login_required
+def dashboard_view(request):
+    """
+    Display the dashboard page with a welcome message.
+    """
+    return render(request, "dashboard.html", {"title": "Dashboard"})
+
+
+@login_required
+@role_required(["manager"])
 def module_list(request):
     """
-    * Retrieves all available modules and renders the module management page.
-    * 
-    * @param request: Django HTTP request object.
-    * @return: Rendered HTML template with module data.
+    Retrieves all available modules and renders the module management page.
+    
+    @param request: Django HTTP request object.
+    @return: Rendered HTML template with module data.
     """
     modules = Module.objects.all()
     return render(request, "engine/module_list.html", {"modules": modules})
 
+
+@login_required
+@role_required(["manager"])
 def create_module(request):
     """
     * Handles module creation.
@@ -138,6 +192,8 @@ def rollback_migrations_for_module(app_name):
         return False, f"Error rolling back migrations for '{app_name}': {str(e)}"
 
 
+@login_required
+@role_required(["manager"])
 def install_module(request, module_name):
     """
     Installs a module, runs migrations, and assigns necessary permissions.
@@ -150,22 +206,24 @@ def install_module(request, module_name):
 
     module.installed = True
     module.save()
+    
+    # Update installed modules file
+    os.system("python update_installed_modules.py")
 
-    # Run migrations for the module
     app_name = module_name.lower()
     success, message = run_migrations_for_module(app_name, is_install=True)
-
+    
     if success:
         messages.success(request, f"Module '{module_name}' installed successfully. {message}")
-        # Assign permissions dynamically for all models in this module
         assign_module_permissions(app_name)
-
     else:
         messages.error(request, message)
 
     return redirect("module_list")
 
 
+@login_required
+@role_required(["manager"])
 def upgrade_module(request, module_name):
     """
     * Upgrades a module by updating its version.
@@ -209,6 +267,8 @@ def upgrade_module(request, module_name):
     return redirect("module_list")
 
 
+@login_required
+@role_required(["manager"])
 def uninstall_module(request, module_name):
     """
     * Uninstalls a module and rolls back its database migrations.
@@ -236,6 +296,9 @@ def uninstall_module(request, module_name):
 
     module.installed = False
     module.save()
+    
+    # Update installed modules file
+    os.system("python update_installed_modules.py")
     
     clear_url_caches()
 
