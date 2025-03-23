@@ -1,0 +1,140 @@
+<!-- Create Module Modal -->
+<div
+  id="moduleModal"
+  class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center"
+  onclick="closeModal(event, 'moduleModal')"
+>
+  <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+    <h2 class="text-xl font-semibold mb-4">Create a New Module</h2>
+    <form id="moduleForm" method="post" action="{% url 'create_module' %}">
+      {% csrf_token %}
+      <input
+        type="text"
+        name="module_name"
+        id="module_name"
+        placeholder="Enter module name"
+        class="w-full border rounded p-2 mb-4"
+        required
+      />
+      <div class="flex justify-end gap-2">
+        <button
+          type="button"
+          onclick="closeModalById('moduleModal')"
+          class="px-4 py-2 bg-gray-400 text-white rounded"
+        >
+          Cancel
+        </button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">
+          Create
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Install Confirmation Modal -->
+<div
+  id="installModal"
+  class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center"
+  onclick="closeModal(event, 'installModal')"
+>
+  <div
+    class="bg-white p-6 rounded-lg shadow-lg w-96"
+    onclick="event.stopPropagation()"
+  >
+    <h2 class="text-xl font-semibold mb-4">Install Module</h2>
+    <p>
+      Are you sure you want to install
+      <span id="installModuleName" class="font-bold"></span>?
+    </p>
+    <div class="flex justify-end gap-2 mt-4">
+      <button
+        type="button"
+        onclick="closeModalById('installModal')"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+      >
+        Cancel
+      </button>
+      <a
+        id="installConfirmButton"
+        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        Install
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Upgrade Confirmation Modal -->
+<div
+  id="upgradeModal"
+  class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center"
+  onclick="closeModal(event, 'upgradeModal')"
+>
+  <div
+    class="bg-white p-6 rounded-lg shadow-lg w-96"
+    onclick="event.stopPropagation()"
+  >
+    <h2 class="text-xl font-semibold mb-4">Upgrade Module</h2>
+    <p>Current Version: <span id="currentVersion" class="font-bold"></span></p>
+    <form id="upgradeForm" method="POST">
+      {% csrf_token %}
+      <input
+        type="text"
+        id="newVersion"
+        name="version"
+        placeholder="Enter new version"
+        class="w-full border rounded p-2 mt-2"
+        required
+      />
+      <div class="flex justify-end gap-2 mt-4">
+        <button
+          type="button"
+          onclick="closeModalById('upgradeModal')"
+          class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Upgrade
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Uninstall Confirmation Modal -->
+<div
+  id="uninstallModal"
+  class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center"
+  onclick="closeModal(event, 'uninstallModal')"
+>
+  <div
+    class="bg-white p-6 rounded-lg shadow-lg w-96"
+    onclick="event.stopPropagation()"
+  >
+    <h2 class="text-xl font-semibold mb-4">Uninstall Module</h2>
+    <p>
+      Are you sure you want to uninstall
+      <span id="uninstallModuleName" class="font-bold"></span>?
+    </p>
+    <div class="flex justify-end gap-2 mt-4">
+      <button
+        type="button"
+        onclick="closeModalById('uninstallModal')"
+        class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+      >
+        Cancel
+      </button>
+      <a
+        id="uninstallConfirmButton"
+        class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+      >
+        Uninstall
+      </a>
+    </div>
+  </div>
+</div>
