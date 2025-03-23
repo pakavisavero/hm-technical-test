@@ -12,8 +12,6 @@ env/
 
 # Django-related
 /media/
-staticfiles/
-static/
 local_settings.py
 
 # Migrations (optional, if you don't want to track generated migrations)
