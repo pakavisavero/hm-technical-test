@@ -1,0 +1,49 @@
+# Python-related
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+*.db
+venv/
+env/
+*.env
+*.DS_Store
+
+# Django-related
+/media/
+staticfiles/
+static/
+local_settings.py
+
+# Migrations (optional, if you don't want to track generated migrations)
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# Logs and Debug
+*.log
+logs/
+debug.log
+
+# VS Code
+.vscode/
+
+# JetBrains (PyCharm)
+.idea/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Docker
+*.docker
+docker-compose.override.yml
+
+# Node & Frontend (if using)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+
+# Environment variables
+.env

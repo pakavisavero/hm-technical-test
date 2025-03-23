@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 - Page Not Found</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="flex items-center justify-center h-screen"
+  >
+    <div class="text-center p-6 rounded-lg">
+      <img
+        src="{% static 'images/404.jpg' %}"
+        alt="Page Not Found"
+        class="w-64 mx-auto"
+      />
+      <h1 class="text-6xl font-extrabold text-indigo-600 mt-4">404</h1>
+      <p class="text-xl text-gray-700 mt-2">
+        Sorry, the page you're looking for doesn't exist.
+      </p>
+      <a
+        href="/dashboard"
+        class="mt-6 inline-block px-5 py-3 bg-green-600 text-white text-lg rounded-lg hover:bg-green-700"
+      >
+        Go Home
+      </a>
+    </div>
+  </body>
+</html>
