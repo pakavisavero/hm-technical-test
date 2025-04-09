@@ -8,7 +8,7 @@ import json
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-n3j0m9-=3jubjwa*bn6v$%*&h3e$gc2*5@j*+#ibpvkh$i@2rl'
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -36,6 +36,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "engine.middleware.ModuleCheckMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 ROOT_URLCONF = 'hashmicro_test.urls'

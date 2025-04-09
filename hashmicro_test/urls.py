@@ -20,8 +20,8 @@ urlpatterns = [
     path('product/', include('product.urls')),
 ]
 
-# if settings.DEBUG:
-#     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 def custom_403(request, exception):
     return render(request, "errors/403.html", status=403)
