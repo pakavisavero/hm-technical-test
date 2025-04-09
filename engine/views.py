@@ -60,7 +60,7 @@ def dashboard_view(request):
 
 
 @login_required
-@role_required(["manager"])
+@role_required(["superadmin", "manager"])
 def module_list(request):
     """
     Retrieves all available modules and renders the module management page.
@@ -73,7 +73,7 @@ def module_list(request):
 
 
 @login_required
-@role_required(["manager"])
+@role_required(["superadmin", "manager"])
 def create_module(request):
     """
     * Handles module creation.
@@ -264,7 +264,7 @@ def rollback_migrations_for_module(app_name):
 
 
 @login_required
-@role_required(["manager"])
+@role_required(["superadmin", "manager"])
 def install_module(request, module_name):
     """
     Installs a module, runs migrations, and assigns necessary permissions.
@@ -294,7 +294,7 @@ def install_module(request, module_name):
 
 
 @login_required
-@role_required(["manager"])
+@role_required(["superadmin", "manager"])
 def upgrade_module(request, module_name):
     """
     * Upgrades a module by updating its version.
@@ -339,7 +339,7 @@ def upgrade_module(request, module_name):
 
 
 @login_required
-@role_required(["manager"])
+@role_required(["superadmin", "manager"])
 def uninstall_module(request, module_name):
     """
     * Uninstalls a module and rolls back its database migrations.

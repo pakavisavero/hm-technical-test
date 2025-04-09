@@ -8,13 +8,13 @@ from .models import Product
 from .forms import ProductForm
 from engine.decorators import role_required
 
-@method_decorator([login_required, role_required(["manager", "user", "public"])], name="dispatch")
+@method_decorator([login_required, role_required(["superadmin", "manager", "user", "public"])], name="dispatch")
 class ProductListView(ListView):
     model = Product
     template_name = "product/product_list.html"
     context_object_name = "products"
 
-@method_decorator([login_required, role_required(["manager", "user"])], name="dispatch")
+@method_decorator([login_required, role_required(["superadmin", "manager", "user"])], name="dispatch")
 class ProductCreateView(CreateView):
     model = Product
     form_class = ProductForm
@@ -25,7 +25,7 @@ class ProductCreateView(CreateView):
         messages.success(self.request, "Product added successfully!")
         return super().form_valid(form)
 
-@method_decorator([login_required, role_required(["manager", "user"])], name="dispatch")
+@method_decorator([login_required, role_required(["superadmin", "manager", "user"])], name="dispatch")
 class ProductUpdateView(UpdateView):
     model = Product
     form_class = ProductForm
@@ -36,7 +36,7 @@ class ProductUpdateView(UpdateView):
         messages.success(self.request, "Product updated successfully!")
         return super().form_valid(form)
 
-@method_decorator([login_required, role_required(["manager"])], name="dispatch")
+@method_decorator([login_required, role_required(["superadmin", "manager"])], name="dispatch")
 class ProductDeleteView(DeleteView):
     model = Product
     template_name = "product/product_confirm_delete.html"
